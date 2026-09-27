@@ -115,6 +115,29 @@ function adicionarColunaSeNaoExistir(tabela, coluna, definicao) {
     }
 }
 
+// Garante que a tabela de horários bloqueados exista
+db.exec(`
+    CREATE TABLE IF NOT EXISTS horarios_bloqueados (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        data TEXT NOT NULL,
+        horario TEXT NOT NULL,
+        criado_em TEXT NOT NULL,
+        UNIQUE(data, horario)
+    );
+`);
+
+// Garante colunas necessárias na tabela de reservas
+adicionarColunaSeNaoExistir(
+    "reservas",
+    "cpf",
+    "TEXT"
+);
+
+adicionarColunaSeNaoExistir(
+    "reservas",
+    "asaas_payment_id",
+    "TEXT"
+);
 
 // Garante que a tabela de reservas temporÃ¡rias
 // tenha todas as colunas necessÃ¡rias.
