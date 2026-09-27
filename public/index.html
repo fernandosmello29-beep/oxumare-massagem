@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oxumaré Massagem</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f5f1e8;
+    color:#333
+}
+
+.container{
+    width:100%;
+    max-width:650px;
+    margin:auto;
+    padding:20px
+}
+
+.card{
+    background:#fff;
+    border-radius:22px;
+    padding:25px;
+    box-shadow:0 8px 30px rgba(0,0,0,.08);
+    margin-bottom:20px
+}
+
+.logo{
+    width:180px;
+    max-width:70%;
+    display:block;
+    margin:0 auto 15px
+}
+
+h1{
+    text-align:center;
+    color:#245c45;
+    margin-bottom:5px
+}
+
+.subtitle{
+    text-align:center;
+    color:#777;
+    margin-top:0
+}
+
+.price{
+    text-align:center;
+    font-size:32px;
+    font-weight:bold;
+    color:#b28a27;
+    margin:20px 0
+}
+
+.section-title{
+    color:#245c45;
+    margin-top:25px;
+    margin-bottom:12px
+}
+
+ul{
+    padding-left:20px;
+    line-height:1.8
+}
+
+.option{
+    background:#f7f4ec;
+    border-radius:14px;
+    padding:15px;
+    margin-top:15px
+}
+
+.option label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer
+}
+
+.option input{
+    width:20px;
+    height:20px
+}
+
+.total-box{
+    background:#edf5ef;
+    border-radius:15px;
+    padding:18px;
+    margin-top:20px
+}
+
+.total-line{
+    display:flex;
+    justify-content:space-between;
+    margin:8px 0
+}
+
+.total{
+    font-size:25px;
+    font-weight:bold;
+    color:#245c45
+}
+
+.reserve{
+    font-size:18px;
+    font-weight:bold;
+    color:#b28a27
+}
+
+button{
+    width:100%;
+    border:none;
+    border-radius:14px;
+    padding:16px;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:15px
+}
+
+.primary{
+    background:#245c45;
+    color:#fff
+}
+
+.primary:hover{
+    background:#1b4936
+}
+
+.secondary{
+    background:#e8dfc8;
+    color:#604d20
+}
+
+.hidden{
+    display:none
+}
+
+.address{
+    text-align:center;
+    line-height:1.6;
+    color:#666
+}
+
+.calendar-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px
+}
+
+.calendar-header button{
+    width:45px;
+    padding:10px;
+    margin:0;
+    background:#edf5ef;
+    color:#245c45;
+    font-size:20px
+}
+
+.month-title{
+    font-size:20px;
+    font-weight:bold;
+    color:#245c45;
+    text-transform:capitalize
+}
+
+.weekdays,
+.calendar-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:6px
+}
+
+.weekday{
+    text-align:center;
+    font-size:12px;
+    font-weight:bold;
+    color:#777;
+    padding:5px 0
+}
+
+.day{
+    border:none;
+    background:#f4f4f4;
+    color:#333;
+    padding:12px 5px;
+    border-radius:10px;
+    margin:0;
+    font-size:14px
+}
+
+.day:hover:not(:disabled){
+    background:#dcecdf
+}
+
+.day:disabled{
+    color:#bbb;
+    background:#f7f7f7;
+    cursor:not-allowed
+}
+
+.day.selected{
+    background:#245c45;
+    color:#fff
+}
+
+.day.today{
+    border:2px solid #b28a27
+}
+
+.time-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:15px
+}
+
+.time-button{
+    margin:0;
+    background:#edf5ef;
+    color:#245c45;
+    padding:14px 5px
+}
+
+.time-button:hover{
+    background:#dcecdf
+}
+
+.no-times,
+.loading{
+    text-align:center;
+    color:#777;
+    padding:20px 0
+}
+
+input[type="text"],
+input[type="tel"]{
+    width:100%;
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:12px;
+    font-size:16px;
+    margin-top:7px;
+    margin-bottom:15px
+}
+
+label.field-label{
+    font-weight:bold;
+    color:#555
+}
+
+.summary{
+    background:#f7f4ec;
+    border-radius:15px;
+    padding:18px;
+    line-height:1.8
+}
+
+.success{
+    text-align:center
+}
+
+.success-icon{
+    font-size:60px
+}
+
+.pix-box{
+    background:#edf5ef;
+    border-radius:15px;
+    padding:20px;
+    text-align:center;
+    margin-top:20px
+}
+
+.pix-value{
+    font-size:28px;
+    font-weight:bold;
+    color:#245c45
+}
+
+@media(max-width:500px){
+    .container{padding:12px}
+    .card{padding:20px}
+    .time-grid{grid-template-columns:repeat(2,1fr)}
+    .day{padding:10px 3px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- INÍCIO -->
+
+<div id="homeScreen">
+
+<div class="card">
+
+<img src="logo.png" class="logo" alt="Oxumaré Massagem">
+
+<h1>Oxumaré Massagem</h1>
+
+<p class="subtitle">
+Atendimento completo de 1 hora
+</p>
+
+<div class="price">R$ 150,00</div>
+
+<h3 class="section-title">
+Seu atendimento inclui:
+</h3>
+
+<ul>
+<li>Massagem relaxante</li>
+<li>Liberação miofascial</li>
+<li>Ventosaterapia</li>
+<li>Pedras quentes</li>
+<li>Reflexologia podal</li>
+</ul>
+
+<div class="option">
+
+<label>
+<input type="checkbox" id="footBath" onchange="updateTotal()">
+
+<span>
+<strong>Escalda-pés</strong><br>
+Adicional de R$ 30,00
+</span>
+
+</label>
+
+</div>
+
+<div class="total-box">
+
+<div class="total-line">
+<span>Valor do atendimento:</span>
+<strong>R$ 150,00</strong>
+</div>
+
+<div class="total-line">
+<span>Escalda-pés:</span>
+<strong id="footValue">R$ 0,00</strong>
+</div>
+
+<hr>
+
+<div class="total-line total">
+<span>Total:</span>
+<span id="totalValue">R$ 150,00</span>
+</div>
+
+<div class="total-line reserve">
+<span>Reserva via Pix:</span>
+<span>R$ 50,00</span>
+</div>
+
+<div class="total-line">
+<span>Restante:</span>
+<strong id="remainingValue">R$ 100,00</strong>
+</div>
+
+</div>
+
+<button class="primary" onclick="openCalendar()">
+ESCOLHER MEU HORÁRIO
+</button>
+
+</div>
+
+<div class="card address">
+
+<strong>Oxumaré Massagem</strong><br>
+Rua Costa Rica, 147 — Tibery<br>
+Uberlândia — MG
+
+</div>
+
+</div>
+
+
+<!-- CALENDÁRIO -->
+
+<div id="calendarScreen" class="hidden">
+
+<div class="card">
+
+<h1>Escolha o dia</h1>
+
+<p class="subtitle">
+Selecione uma data para consultar os horários disponíveis.
+</p>
+
+<div class="calendar-header">
+
+<button onclick="changeMonth(-1)">‹</button>
+
+<div id="monthTitle" class="month-title"></div>
+
+<button onclick="changeMonth(1)">›</button>
+
+</div>
+
+<div class="weekdays">
+
+<div class="weekday">DOM</div>
+<div class="weekday">SEG</div>
+<div class="weekday">TER</div>
+<div class="weekday">QUA</div>
+<div class="weekday">QUI</div>
+<div class="weekday">SEX</div>
+<div class="weekday">SÁB</div>
+
+</div>
+
+<div id="calendarGrid" class="calendar-grid"></div>
+
+<button class="secondary" onclick="backHome()">
+VOLTAR
+</button>
+
+</div>
+
+</div>
+
+
+<!-- HORÁRIOS -->
+
+<div id="timeScreen" class="hidden">
+
+<div class="card">
+
+<h1>Escolha o horário</h1>
+
+<p id="selectedDateText" class="subtitle"></p>
+
+<div id="timeGrid" class="time-grid"></div>
+
+<button class="secondary" onclick="backCalendar()">
+VOLTAR AO CALENDÁRIO
+</button>
+
+</div>
+
+</div>
+
+
+<!-- DADOS -->
+
+<div id="clientScreen" class="hidden">
+
+<div class="card">
+
+<h1>Seus dados</h1>
+
+<p class="subtitle">
+Precisamos dessas informações para confirmar seu atendimento.
+</p>
+
+<label class="field-label">
+Nome completo
+</label>
+
+<input
+type="text"
+id="clientName"
+placeholder="Digite seu nome"
+>
+
+<label class="field-label">
+CPF
+</label>
+
+<input
+type="text"
+id="clientCpf"
+placeholder="CPF"
+maxlength="14"
+>
+
+<label class="field-label">
+WhatsApp
+</label>
+
+<input
+type="tel"
+id="clientWhatsapp"
+placeholder="(34) 99999-9999"
+>
+<div class="summary">
+
+<strong>Seu horário:</strong><br>
+
+<span id="summaryDate"></span><br>
+
+<span id="summaryTime"></span>
+
+</div>
+
+<button class="primary" onclick="showSummary()">
+CONTINUAR
+</button>
+
+<button class="secondary" onclick="backTime()">
+VOLTAR
+</button>
+
+</div>
+
+</div>
+
+
+<!-- RESUMO -->
+
+<div id="summaryScreen" class="hidden">
+
+<div class="card">
+
+<h1>Confira seu agendamento</h1>
+
+<div class="summary">
+
+<strong>Cliente:</strong>
+<span id="finalName"></span>
+
+<br><br>
+
+<strong>WhatsApp:</strong>
+<span id="finalWhatsapp"></span>
+
+<br><br>
+
+<strong>Data:</strong>
+<span id="finalDate"></span>
+
+<br><br>
+
+<strong>Horário:</strong>
+<span id="finalTime"></span>
+
+<br><br>
+
+<strong>Atendimento:</strong>
+Massagem completa — 1 hora
+
+<br><br>
+
+<strong>Escalda-pés:</strong>
+<span id="finalFoot"></span>
+
+<br><br>
+
+<strong>Total:</strong>
+<span id="finalTotal"></span>
+
+<br><br>
+
+<strong>Reserva agora:</strong>
+R$ 50,00
+
+<br><br>
+
+<strong>Restante:</strong>
+<span id="finalRemaining"></span>
+
+</div>
+
+<button class="primary" onclick="reserveAndContinue()">
+RESERVAR HORÁRIO
+</button>
+
+<button class="secondary" onclick="backClient()">
+VOLTAR
+</button>
+
+</div>
+
+</div>
+
+
+<!-- RESERVA TEMPORÁRIA -->
+
+<div id="paymentScreen" class="hidden">
+
+<div class="card">
+
+<div class="success">
+
+<div class="success-icon">✓</div>
+
+<h1>Horário reservado!</h1>
+
+<p>
+Seu horário está reservado temporariamente por 10 minutos.
+</p>
+
+</div>
+
+<div class="pix-box">
+
+<div>Valor da reserva</div>
+
+<div class="pix-value">
+R$ 50,00
+</div>
+
+<p>
+O próximo passo será gerar o Pix real.
+</p>
+
+</div>
+
+<div class="summary">
+
+<strong>Cliente:</strong>
+<span id="confirmName"></span>
+
+<br><br>
+
+<strong>WhatsApp:</strong>
+<span id="confirmWhatsapp"></span>
+
+<br><br>
+
+<strong>Data:</strong>
+<span id="confirmDate"></span>
+
+<br><br>
+
+<strong>Horário:</strong>
+<span id="confirmTime"></span>
+
+</div>
+
+<button class="primary" onclick="location.reload()">
+FINALIZAR
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+let currentMonth = new Date();
+
+currentMonth.setDate(1);
+
+let selectedDate = null;
+
+let selectedTime = null;
+
+
+/* TOTAL */
+
+function updateTotal(){
+
+const foot =
+document.getElementById("footBath").checked;
+
+const total =
+foot ? 180 : 150;
+
+const remaining =
+total - 50;
+
+document.getElementById("footValue").textContent =
+foot ? "R$ 30,00" : "R$ 0,00";
+
+document.getElementById("totalValue").textContent =
+"R$ " + total.toFixed(2).replace(".",",");
+
+document.getElementById("remainingValue").textContent =
+"R$ " + remaining.toFixed(2).replace(".",",");
+
+}
+
+
+/* TELAS */
+
+function hideAllScreens(){
+
+[
+"homeScreen",
+"calendarScreen",
+"timeScreen",
+"clientScreen",
+"summaryScreen",
+"paymentScreen"
+].forEach(id => {
+
+document.getElementById(id)
+.classList.add("hidden");
+
+});
+
+}
+
+
+function openCalendar(){
+
+hideAllScreens();
+
+document.getElementById("calendarScreen")
+.classList.remove("hidden");
+
+renderCalendar();
+
+}
+
+
+function backHome(){
+
+hideAllScreens();
+
+document.getElementById("homeScreen")
+.classList.remove("hidden");
+
+}
+
+
+function backCalendar(){
+
+hideAllScreens();
+
+document.getElementById("calendarScreen")
+.classList.remove("hidden");
+
+}
+
+
+function backTime(){
+
+hideAllScreens();
+
+document.getElementById("timeScreen")
+.classList.remove("hidden");
+
+}
+
+
+function backClient(){
+
+hideAllScreens();
+
+document.getElementById("clientScreen")
+.classList.remove("hidden");
+
+}
+
+
+/* CALENDÁRIO */
+
+function getToday(){
+
+const now = new Date();
+
+return new Date(
+now.getFullYear(),
+now.getMonth(),
+now.getDate()
+);
+
+}
+
+
+function renderCalendar(){
+
+const grid =
+document.getElementById("calendarGrid");
+
+const title =
+document.getElementById("monthTitle");
+
+grid.innerHTML = "";
+
+const year =
+currentMonth.getFullYear();
+
+const month =
+currentMonth.getMonth();
+
+title.textContent =
+currentMonth.toLocaleDateString(
+"pt-BR",
+{
+month:"long",
+year:"numeric"
+}
+);
+
+const firstDay =
+new Date(year,month,1).getDay();
+
+const daysInMonth =
+new Date(year,month+1,0).getDate();
+
+const today =
+getToday();
+
+
+for(let i=0;i<firstDay;i++){
+
+const empty =
+document.createElement("div");
+
+grid.appendChild(empty);
+
+}
+
+
+for(let day=1;day<=daysInMonth;day++){
+
+const button =
+document.createElement("button");
+
+button.className="day";
+
+button.textContent=day;
+
+const date =
+new Date(year,month,day);
+
+
+if(date.getTime()===today.getTime()){
+
+button.classList.add("today");
+
+}
+
+
+if(date<today){
+
+button.disabled=true;
+
+}else{
+
+button.onclick=()=>selectDate(date);
+
+}
+
+
+if(
+selectedDate &&
+date.getTime()===selectedDate.getTime()
+){
+
+button.classList.add("selected");
+
+}
+
+
+grid.appendChild(button);
+
+}
+
+}
+
+
+function changeMonth(direction){
+
+const newMonth =
+new Date(
+currentMonth.getFullYear(),
+currentMonth.getMonth()+direction,
+1
+);
+
+const today =
+getToday();
+
+const firstAllowedMonth =
+new Date(
+today.getFullYear(),
+today.getMonth(),
+1
+);
+
+if(newMonth<firstAllowedMonth){
+
+return;
+
+}
+
+currentMonth=newMonth;
+
+renderCalendar();
+
+}
+
+
+/* DATA */
+
+function selectDate(date){
+
+selectedDate=date;
+
+selectedTime=null;
+
+document.getElementById("selectedDateText")
+.textContent =
+date.toLocaleDateString(
+"pt-BR",
+{
+weekday:"long",
+day:"2-digit",
+month:"long",
+year:"numeric"
+}
+);
+
+hideAllScreens();
+
+document.getElementById("timeScreen")
+.classList.remove("hidden");
+
+loadTimes();
+
+}
+
+
+/* HORÁRIOS DO SERVIDOR */
+
+async function loadTimes(){
+
+const grid =
+document.getElementById("timeGrid");
+
+grid.innerHTML =
+'<div class="loading" style="grid-column:1/-1;">Consultando horários...</div>';
+
+
+const year =
+selectedDate.getFullYear();
+
+const month =
+String(selectedDate.getMonth()+1).padStart(2,"0");
+
+const day =
+String(selectedDate.getDate()).padStart(2,"0");
+
+const dateString =
+`${year}-${month}-${day}`;
+
+
+try{
+
+const response =
+await fetch(
+`/api/horarios?data=${dateString}`
+);
+
+
+if(!response.ok){
+
+throw new Error("Erro");
+
+}
+
+
+const data =
+await response.json();
+
+grid.innerHTML="";
+
+
+if(
+!data.horarios ||
+data.horarios.length===0
+){
+
+grid.innerHTML =
+'<div class="no-times" style="grid-column:1/-1;">' +
+'Não há horários disponíveis para este dia.' +
+'</div>';
+
+return;
+
+}
+
+
+data.horarios.forEach(horario=>{
+
+const button =
+document.createElement("button");
+
+button.className="time-button";
+
+button.textContent=horario;
+
+button.onclick=()=>selectTime(horario);
+
+grid.appendChild(button);
+
+});
+
+
+}catch(error){
+
+console.error(error);
+
+grid.innerHTML =
+'<div class="no-times" style="grid-column:1/-1;">' +
+'Não foi possível consultar os horários.' +
+'</div>';
+
+}
+
+}
+
+
+/* HORÁRIO */
+
+function selectTime(time){
+
+selectedTime=time;
+
+document.getElementById("summaryDate")
+.textContent =
+selectedDate.toLocaleDateString(
+"pt-BR",
+{
+weekday:"long",
+day:"2-digit",
+month:"long",
+year:"numeric"
+}
+);
+
+document.getElementById("summaryTime")
+.textContent =
+"Horário: "+selectedTime;
+
+
+hideAllScreens();
+
+document.getElementById("clientScreen")
+.classList.remove("hidden");
+
+}
+
+
+/* RESUMO */
+
+function showSummary(){
+
+const name =
+document.getElementById("clientName")
+.value.trim();
+
+const whatsapp =
+document.getElementById("clientWhatsapp")
+.value.trim();
+
+const cpf =
+document.getElementById("clientCpf")
+.value.trim();
+
+
+if(!name){
+
+alert("Digite seu nome.");
+
+return;
+
+}
+
+
+if(!whatsapp){
+
+alert("Digite seu WhatsApp.");
+
+return;
+
+}
+
+
+const foot =
+document.getElementById("footBath").checked;
+
+const total =
+foot ? 180 : 150;
+
+const remaining =
+total - 50;
+
+
+const dateText =
+selectedDate.toLocaleDateString(
+"pt-BR",
+{
+weekday:"long",
+day:"2-digit",
+month:"long",
+year:"numeric"
+}
+);
+
+
+document.getElementById("finalName")
+.textContent=name;
+
+document.getElementById("finalWhatsapp")
+.textContent=whatsapp;
+
+document.getElementById("finalDate")
+.textContent=dateText;
+
+document.getElementById("finalTime")
+.textContent=selectedTime;
+
+document.getElementById("finalFoot")
+.textContent=
+foot
+?"Sim — R$ 30,00"
+:"Não";
+
+document.getElementById("finalTotal")
+.textContent=
+"R$ "+total.toFixed(2).replace(".",",");
+
+document.getElementById("finalRemaining")
+.textContent=
+"R$ "+remaining.toFixed(2).replace(".",",");
+
+
+hideAllScreens();
+
+document.getElementById("summaryScreen")
+.classList.remove("hidden");
+
+}
+
+
+/* RESERVAR */
+
+async function reserveAndContinue(){
+
+    const name =
+        document.getElementById("clientName")
+        .value.trim();
+
+    const cpf =
+        document.getElementById("clientCpf")
+        .value.trim();
+
+    const whatsapp =
+        document.getElementById("clientWhatsapp")
+        .value.trim();
+
+    const foot =
+        document.getElementById("footBath").checked;
+
+    const year =
+        selectedDate.getFullYear();
+
+    const month =
+        String(selectedDate.getMonth() + 1)
+        .padStart(2, "0");
+
+    const day =
+        String(selectedDate.getDate())
+        .padStart(2, "0");
+
+    const dateString =
+        `${year}-${month}-${day}`;
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/reservar-temporariamente",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        data: dateString,
+                        horario: selectedTime,
+                        nome: name,
+                        cpf: cpf,
+                        whatsapp: whatsapp,
+                        escaldaPes: foot
+                    })
+                }
+            );
+
+        const result =
+            await response.json();
+
+        if (!response.ok) {
+
+            alert(
+                result.erro ||
+                "Não foi possível reservar este horário."
+            );
+
+            return;
+        }
+
+        document.getElementById("confirmName")
+            .textContent = name;
+
+        document.getElementById("confirmWhatsapp")
+            .textContent = whatsapp;
+
+        document.getElementById("confirmDate")
+            .textContent = selectedDate.toLocaleDateString(
+                "pt-BR",
+                {
+                    weekday: "long",
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+
+        document.getElementById("confirmTime")
+            .textContent = selectedTime;
+
+        const pixBox =
+            document.querySelector(
+                "#paymentScreen .pix-box"
+            );
+
+        pixBox.innerHTML = `
+            <div>Valor da reserva</div>
+
+            <div class="pix-value">
+                R$ 50,00
+            </div>
+
+            <div style="
+                text-align:center;
+                margin-top:20px;
+            ">
+                <strong>
+                    Pague R$ 50,00 via Pix
+                </strong>
+            </div>
+
+            <div style="
+                text-align:center;
+                margin:20px 0;
+            ">
+                <img
+                    src="data:image/png;base64,${result.pix.encodedImage}"
+                    alt="QR Code Pix"
+                    style="
+                        width:240px;
+                        max-width:100%;
+                        display:block;
+                        margin:auto;
+                    "
+                >
+            </div>
+
+            <div style="
+                margin-top:15px;
+                font-weight:bold;
+            ">
+                Pix Copia e Cola
+            </div>
+
+            <textarea
+                id="pixPayload"
+                readonly
+                style="
+                    width:100%;
+                    min-height:90px;
+                    margin-top:8px;
+                    padding:10px;
+                    box-sizing:border-box;
+                    resize:none;
+                "
+            ></textarea>
+
+            <button
+                id="copyPixButton"
+                class="primary"
+                type="button"
+                style="
+                    margin-top:10px;
+                    width:100%;
+                "
+            >
+                COPIAR PIX
+            </button>
+
+            <div
+                id="pixTimer"
+                style="
+                    text-align:center;
+                    margin-top:15px;
+                    font-weight:bold;
+                "
+            >
+                Reserva válida por 10 minutos.
+            </div>
+        `;
+
+        document.getElementById("pixPayload")
+            .value = result.pix.payload;
+
+        document.getElementById("copyPixButton")
+            .addEventListener("click", async () => {
+
+                try {
+
+                    await navigator.clipboard.writeText(
+                        result.pix.payload
+                    );
+
+                    const botao =
+                        document.getElementById(
+                            "copyPixButton"
+                        );
+
+                    botao.textContent =
+                        "PIX COPIADO! ✓";
+
+                    setTimeout(() => {
+                        botao.textContent =
+                            "COPIAR PIX";
+                    }, 2000);
+
+                } catch (error) {
+
+                    alert(
+                        "Não foi possível copiar automaticamente. Selecione o código e copie."
+                    );
+                }
+            });
+
+        const timer =
+            document.getElementById("pixTimer");
+
+        let timerId;
+
+        function atualizarTimer() {
+
+            const restante =
+                result.expiraEm - Date.now();
+
+            if (restante <= 0) {
+
+                timer.textContent =
+                    "Sua reserva temporária expirou.";
+
+                return;
+            }
+
+            const minutos =
+                Math.floor(
+                    restante / 60000
+                );
+
+            const segundos =
+                Math.floor(
+                    (restante % 60000) / 1000
+                );
+
+            timer.textContent =
+                `Seu horário está reservado por mais ${minutos}:${String(segundos).padStart(2, "0")}.`;
+
+            timerId = setTimeout(
+                atualizarTimer,
+                1000
+            );
+        }
+
+        atualizarTimer();
+
+        document.getElementById("clientScreen")
+            .classList.add("hidden");
+
+        document.getElementById("paymentScreen")
+            .classList.remove("hidden");
+
+
+        // =====================================================
+        // VERIFICAÇÃO AUTOMÁTICA DO PAGAMENTO
+        // =====================================================
+
+        const paymentId =
+            result.paymentId ||
+            result.asaasPaymentId ||
+            result.pix?.paymentId;
+
+        if (!paymentId) {
+
+            console.error(
+                "ID do pagamento não retornado pelo servidor.",
+                result
+            );
+
+            return;
+        }
+
+        let verificandoPagamento = true;
+
+        async function verificarPagamento() {
+
+            if (!verificandoPagamento) {
+                return;
+            }
+
+            try {
+
+                const statusResponse =
+                    await fetch(
+                        `/api/status-pagamento/${encodeURIComponent(paymentId)}`
+                    );
+
+                const statusResult =
+                    await statusResponse.json();
+
+                console.log(
+                    "Status do pagamento:",
+                    statusResult
+                );
+
+                if (
+                    statusResult.status ===
+                    "CONFIRMADO"
+                ) {
+
+                    verificandoPagamento = false;
+
+                    clearTimeout(timerId);
+
+                    pixBox.innerHTML = `
+                        <div style="
+                            text-align:center;
+                            padding:20px 10px;
+                        ">
+
+                            <div style="
+                                font-size:64px;
+                                margin-bottom:10px;
+                            ">
+                                ✓
+                            </div>
+
+                            <h2 style="
+                                margin:0 0 15px;
+                            ">
+                                Pagamento confirmado!
+                            </h2>
+
+                            <p style="
+                                font-size:18px;
+                                margin-bottom:20px;
+                            ">
+                                Sua reserva está confirmada.
+                            </p>
+
+                            <div style="
+                                text-align:left;
+                                background:#f5f5f5;
+                                padding:18px;
+                                border-radius:12px;
+                                margin-top:15px;
+                            ">
+
+                                <strong>
+                                    Data:
+                                </strong>
+                                ${selectedDate.toLocaleDateString(
+                                    "pt-BR"
+                                )}
+
+                                <br><br>
+
+                                <strong>
+                                    Horário:
+                                </strong>
+                                ${selectedTime}
+
+                                <br><br>
+
+                                <strong>
+                                    Cliente:
+                                </strong>
+                                ${name}
+
+                            </div>
+
+                            <p style="
+                                margin-top:20px;
+                                font-size:15px;
+                            ">
+                                A Oxumaré Massagem agradece
+                                pela sua reserva. 💚
+                            </p>
+
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                if (
+                    statusResult.status ===
+                    "EXPIRADO"
+                ) {
+
+                    verificandoPagamento = false;
+
+                    clearTimeout(timerId);
+
+                    pixBox.innerHTML = `
+                        <div style="
+                            text-align:center;
+                            padding:25px 10px;
+                        ">
+
+                            <div style="
+                                font-size:50px;
+                            ">
+                                ⏰
+                            </div>
+
+                            <h2>
+                                Reserva expirada
+                            </h2>
+
+                            <p>
+                                O tempo para pagamento
+                                terminou.
+                            </p>
+
+                            <p>
+                                Por favor, faça uma nova
+                                reserva.
+                            </p>
+
+                        </div>
+                    `;
+
+                    return;
+                }
+
+            } catch (erro) {
+
+                console.error(
+                    "Erro ao verificar pagamento:",
+                    erro
+                );
+            }
+
+            setTimeout(
+                verificarPagamento,
+                3000
+            );
+        }
+
+        verificarPagamento();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Não foi possível conectar ao servidor."
+        );
+    }
+}
+
+updateTotal();
+
+</script>
+
+</body>
+</html>

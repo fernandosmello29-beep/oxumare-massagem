@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oxumaré Massagem — Painel Administrativo</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f2;color:#1f2b25}
+header{background:#0b2b22;color:#fff;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+header h1{margin:0;font-size:25px} header small{opacity:.8}
+main{max-width:1200px;margin:28px auto;padding:0 18px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px;flex-wrap:wrap}
+.top h2{margin:0;font-size:22px}
+button{border:0;border-radius:9px;padding:10px 15px;cursor:pointer;font-weight:bold}
+#refresh{background:#c9a227;color:#fff}
+#logout{background:#fff;color:#0b2b22;border:1px solid #d7ddd8}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:25px}
+.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 3px 14px rgba(0,0,0,.07)}
+.card span{display:block;color:#6b746f;font-size:14px;margin-bottom:8px}
+.card strong{font-size:27px}
+.tablebox,.agenda-box{background:#fff;border-radius:14px;padding:18px;box-shadow:0 3px 14px rgba(0,0,0,.07);overflow:auto;margin-bottom:25px}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th,td{padding:13px 10px;border-bottom:1px solid #e8ebe8;text-align:left;font-size:14px}
+th{color:#53615a;background:#fafbfa}
+.badge{display:inline-block;padding:6px 9px;border-radius:20px;font-size:12px;font-weight:bold}
+.confirmada{background:#dff3e7;color:#176b3a}.pendente{background:#fff1c9;color:#8a6500}.bloqueado{background:#ffe1e1;color:#a52b2b}.livre{background:#dff3e7;color:#176b3a}.outro{background:#ececec;color:#555}
+.empty{text-align:center;padding:35px;color:#6b746f}
+.error{background:#ffe4e4;color:#8a1f1f;padding:15px;border-radius:10px;margin-bottom:18px;display:none}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{width:100%;max-width:420px;background:#fff;border-radius:18px;padding:32px;box-shadow:0 6px 30px rgba(0,0,0,.12)}
+.login-card h1{margin:0 0 8px;color:#0b2b22}.login-card p{color:#68736d;margin-bottom:25px}
+.login-card label{display:block;font-weight:bold;margin:15px 0 7px}
+.login-card input{width:100%;padding:13px;border:1px solid #ccd4cf;border-radius:9px;font-size:16px}
+.login-card button{width:100%;margin-top:20px;background:#0b2b22;color:#fff}
+.login-error{display:none;background:#ffe4e4;color:#8a1f1f;padding:11px;border-radius:9px;margin-top:15px}
+#app{display:none}
+.agenda-head{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:18px}
+.agenda-head h2{margin:0}
+.date-control{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.date-control label{font-weight:bold}
+.date-control input{padding:10px 12px;border:1px solid #ccd4cf;border-radius:9px;font-size:15px}
+.hint{color:#68736d;font-size:13px;margin:0 0 18px}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;min-width:760px}
+.slot{border:1px solid #e1e6e2;border-radius:12px;padding:14px;background:#fafbfa}
+.slot-time{font-size:20px;font-weight:bold;margin-bottom:8px}
+.slot-status{font-size:13px;margin-bottom:12px}
+.slot-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-block{background:#a52b2b;color:#fff}.btn-release{background:#176b3a;color:#fff}.btn-disabled{background:#d9ddda;color:#68736d;cursor:default}
+.reserved{background:#fff7df;border-color:#ead59b}
+.blocked{background:#fff0f0;border-color:#e7b0b0}
+.free{background:#eff9f2;border-color:#b9dec3}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.slots{grid-template-columns:repeat(2,1fr);min-width:0}}
+@media(max-width:500px){.cards{grid-template-columns:1fr}.slots{grid-template-columns:1fr}header{padding:18px;flex-direction:column;align-items:flex-start}main{margin-top:18px}.slot-actions button{width:100%}}
+</style>
+</head>
+<body>
+
+<section id="login">
+<div class="login-wrap">
+<div class="login-card">
+<h1>Oxumaré Massagem</h1>
+<p>Acesso ao painel administrativo</p>
+<form id="loginForm">
+<label for="senha">Senha</label>
+<input id="senha" type="password" autocomplete="current-password" required>
+<button type="submit">ENTRAR NO PAINEL</button>
+<div id="loginError" class="login-error"></div>
+</form>
+</div>
+</div>
+</section>
+
+<section id="app">
+<header>
+<div><h1>Oxumaré Massagem</h1><small>Painel Administrativo</small></div>
+<div><span id="lastUpdate">Atualizando...</span> <button id="logout">Sair</button></div>
+</header>
+
+<main>
+<div class="top"><h2>Reservas</h2><button id="refresh">↻ Atualizar</button></div>
+<div id="error" class="error"></div>
+
+<section class="cards">
+<div class="card"><span>Total de reservas</span><strong id="totalReservas">0</strong></div>
+<div class="card"><span>Confirmadas</span><strong id="confirmadas">0</strong></div>
+<div class="card"><span>Pendentes</span><strong id="pendentes">0</strong></div>
+<div class="card"><span>Valor das reservas</span><strong id="valorTotal">R$ 0,00</strong></div>
+</section>
+
+<section class="agenda-box">
+<div class="agenda-head">
+<h2>Agenda do dia</h2>
+<div class="date-control">
+<label for="agendaData">Data:</label>
+<input id="agendaData" type="date">
+</div>
+</div>
+<p class="hint">Aqui você pode bloquear um horário livre ou liberar um horário que foi bloqueado.</p>
+<div id="slots" class="slots"></div>
+</section>
+
+<section class="tablebox">
+<h2 style="margin-top:0">Reservas</h2>
+<table>
+<thead><tr><th>Data</th><th>Horário</th><th>Cliente</th><th>WhatsApp</th><th>Escalda-pés</th><th>Total</th><th>Reserva</th><th>Status</th></tr></thead>
+<tbody id="reservasBody"><tr><td colspan="8" class="empty">Carregando reservas...</td></tr></tbody>
+</table>
+</section>
+</main>
+</section>
+
+<script>
+const TOKEN_KEY="oxumare_admin_token";
+const HORARIOS_PADRAO=["09:00","10:00","11:00","12:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
+
+function mostrarApp(){
+ document.getElementById("login").style.display="none";
+ document.getElementById("app").style.display="block";
+ if(!document.getElementById("agendaData").value) document.getElementById("agendaData").value=dataHojeISO();
+ carregarTudo();
+}
+function mostrarLogin(){
+ document.getElementById("login").style.display="block";
+ document.getElementById("app").style.display="none";
+}
+function moeda(v){return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+function dataHojeISO(){
+ const agora=new Date();
+ const local=new Date(agora.getTime()-agora.getTimezoneOffset()*60000);
+ return local.toISOString().slice(0,10);
+}
+function dataBR(v){if(!v)return "-";const p=String(v).split("-");return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:v}
+function statusInfo(v){
+ const s=String(v||"").toLowerCase();
+ if(s.includes("confirm"))return["Confirmada","confirmada"];
+ if(s.includes("pend"))return["Pendente","pendente"];
+ return[v||"—","outro"];
+}
+function token(){
+ return localStorage.getItem(TOKEN_KEY)||"";
+}
+async function respostaJson(url,options={}){
+ const response=await fetch(url,{
+  ...options,
+  headers:{...(options.headers||{}),Authorization:"Bearer "+token(),"Content-Type":"application/json"}
+ });
+ if(response.status===401){
+  localStorage.removeItem(TOKEN_KEY);
+  mostrarLogin();
+  throw new Error("Sessão expirada.");
+ }
+ const result=await response.json().catch(()=>({}));
+ if(!response.ok) throw new Error(result.erro||"Erro HTTP "+response.status);
+ return result;
+}
+
+async function carregarReservas(){
+ const err=document.getElementById("error"),body=document.getElementById("reservasBody");
+ err.style.display="none";
+ if(!token()){mostrarLogin();return}
+ try{
+  const reservas=await respostaJson("/api/reservas");
+  document.getElementById("totalReservas").textContent=reservas.length;
+  document.getElementById("confirmadas").textContent=reservas.filter(r=>String(r.status||"").toLowerCase().includes("confirm")).length;
+  document.getElementById("pendentes").textContent=reservas.filter(r=>String(r.status||"").toLowerCase().includes("pend")).length;
+  document.getElementById("valorTotal").textContent=moeda(reservas.reduce((s,r)=>s+Number(r.total||0),0));
+  if(!reservas.length){
+   body.innerHTML='<tr><td colspan="8" class="empty">Nenhuma reserva encontrada.</td></tr>';
+  }else{
+   body.innerHTML=reservas.map(r=>{
+    const st=statusInfo(r.status);
+    return `<tr><td>${dataBR(r.data)}</td><td><strong>${r.horario||"-"}</strong></td><td>${r.nome||"-"}</td><td>${r.whatsapp||"-"}</td><td>${Number(r.escalda_pes)?"Sim":"Não"}</td><td>${moeda(r.total)}</td><td>${moeda(r.reserva)}</td><td><span class="badge ${st[1]}">${st[0]}</span></td></tr>`;
+   }).join("");
+  }
+ }catch(e){
+  if(e.message==="Sessão expirada.")return;
+  console.error(e);
+  err.textContent=e.message||"Não foi possível carregar as reservas.";
+  err.style.display="block";
+  body.innerHTML='<tr><td colspan="8" class="empty">Erro ao carregar reservas.</td></tr>';
+ }
+}
+
+async function carregarAgenda(){
+ const container=document.getElementById("slots");
+ const data=document.getElementById("agendaData").value;
+ if(!data){container.innerHTML='<div class="empty">Escolha uma data.</div>';return}
+ container.innerHTML='<div class="empty">Carregando horários...</div>';
+
+ try{
+  const [bloqueios,reservas]=await Promise.all([
+   respostaJson("/api/admin/bloqueios"),
+   respostaJson("/api/reservas")
+  ]);
+
+  const bloqueados=new Map(
+   bloqueios.filter(b=>b.data===data).map(b=>[b.horario,b.id])
+  );
+  const reservasDia=reservas.filter(r=>r.data===data);
+  const reservados=new Map(
+   reservasDia.map(r=>[r.horario,r])
+  );
+
+  container.innerHTML=HORARIOS_PADRAO.map(horario=>{
+   const bloqueioId=bloqueados.get(horario);
+   const reserva=reservados.get(horario);
+
+   if(bloqueioId){
+    return `<div class="slot blocked">
+      <div class="slot-time">${horario}</div>
+      <div class="slot-status"><span class="badge bloqueado">🔴 Bloqueado</span></div>
+      <div class="slot-actions"><button class="btn-release" onclick="liberarHorario(${bloqueioId})">✅ Liberar horário</button></div>
+    </div>`;
+   }
+
+   if(reserva){
+    const confirmada=String(reserva.status||"").toLowerCase().includes("confirm");
+    return `<div class="slot reserved">
+      <div class="slot-time">${horario}</div>
+      <div class="slot-status"><span class="badge ${confirmada?"confirmada":"pendente"}">${confirmada?"🟢 Confirmado":"🟡 Pendente"}</span></div>
+      <div style="font-size:13px;margin-bottom:12px"><strong>${reserva.nome||"Cliente"}</strong></div>
+      <div class="slot-actions"><button class="btn-disabled" disabled>Não disponível</button></div>
+    </div>`;
+   }
+
+   return `<div class="slot free">
+     <div class="slot-time">${horario}</div>
+     <div class="slot-status"><span class="badge livre">🟢 Livre</span></div>
+     <div class="slot-actions"><button class="btn-block" onclick="bloquearHorario('${horario}')">🚫 Bloquear</button></div>
+   </div>`;
+  }).join("");
+ }catch(e){
+  if(e.message==="Sessão expirada.")return;
+  console.error(e);
+  container.innerHTML='<div class="empty">Não foi possível carregar a agenda.</div>';
+ }
+}
+
+async function bloquearHorario(horario){
+ const data=document.getElementById("agendaData").value;
+ if(!data)return;
+ if(!confirm(`Bloquear o horário ${horario} do dia ${dataBR(data)}?`))return;
+
+ try{
+  await respostaJson("/api/admin/bloqueios",{
+   method:"POST",
+   body:JSON.stringify({data,horario})
+  });
+  await carregarAgenda();
+ }catch(e){
+  alert(e.message);
+ }
+}
+
+async function liberarHorario(id){
+ if(!confirm("Liberar este horário para novas reservas?"))return;
+
+ try{
+  await respostaJson("/api/admin/bloqueios/"+id,{method:"DELETE"});
+  await carregarAgenda();
+ }catch(e){
+  alert(e.message);
+ }
+}
+
+async function carregarTudo(){
+ await carregarReservas();
+ await carregarAgenda();
+ document.getElementById("lastUpdate").textContent="Atualizado às "+new Date().toLocaleTimeString("pt-BR");
+}
+
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const senha=document.getElementById("senha").value;
+ const box=document.getElementById("loginError");
+ box.style.display="none";
+ try{
+  const response=await fetch("/api/admin/login",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({senha})
+  });
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.erro||"Senha inválida.");
+  localStorage.setItem(TOKEN_KEY,result.token);
+  document.getElementById("senha").value="";
+  mostrarApp();
+ }catch(error){
+  box.textContent=error.message;
+  box.style.display="block";
+ }
+});
+
+document.getElementById("logout").addEventListener("click",()=>{
+ localStorage.removeItem(TOKEN_KEY);
+ mostrarLogin();
+});
+document.getElementById("refresh").addEventListener("click",carregarTudo);
+document.getElementById("agendaData").addEventListener("change",carregarAgenda);
+
+if(localStorage.getItem(TOKEN_KEY)) mostrarApp();
+else mostrarLogin();
+
+setInterval(()=>{
+ if(localStorage.getItem(TOKEN_KEY)) carregarTudo();
+},30000);
+</script>
+</body>
+</html>
