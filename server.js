@@ -865,7 +865,7 @@ app.get("/api/reservas", adminAutenticado, (req, res) => {
             horario,
             nome,
             whatsapp,
-            escalda_pes AS escaldaPes,
+            escalda_pes,
             total,
             reserva,
             restante,
@@ -899,7 +899,7 @@ app.get("/api/reservas-temporarias", (req, res) => {
             horario,
             nome,
             whatsapp,
-            escalda_pes AS escaldaPes,
+            escalda_pes,
             total,
             expira_em AS expiraEm,
             criado_em AS criadoEm
