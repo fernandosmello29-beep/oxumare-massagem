@@ -903,183 +903,192 @@ app.get("/api/status-pagamento/:paymentId", async (req, res) => {
 });
 
 app.post("/api/webhook/asaas", async (req, res) => {
+    const tokenRecebido = req.headers["asaas-access-token"];
 
-    const tokenRecebido =
-        req.headers["asaas-access-token"];
-
-    if (
-        !ASAAS_WEBHOOK_TOKEN ||
-        tokenRecebido !== ASAAS_WEBHOOK_TOKEN
-    ) {
-        console.log("Webhook Asaas recusado: token invÃ¡lido.");
-
-        return res
-            .status(401)
-            .json({ erro: "NÃ£o autorizado" });
+    if (!ASAAS_WEBHOOK_TOKEN || tokenRecebido !== ASAAS_WEBHOOK_TOKEN) {
+        console.log("Webhook Asaas recusado: token inválido.");
+        return res.status(401).json({ erro: "Não autorizado" });
     }
 
     const evento = req.body;
 
-    if (!evento || !evento.id) {
-        return res
-            .status(400)
-            .json({ erro: "Evento invÃ¡lido" });
+    if (!evento || !evento.id || !evento.event) {
+        return res.status(400).json({ erro: "Evento inválido" });
     }
 
-    try {
+    const paymentId = evento.payment?.id || null;
 
-        await db.prepare(`
-            INSERT INTO asaas_eventos (
-                asaas_event_id,
-                evento,
-                recebido_em
-            )
-            VALUES (?, ?, ?)
-        `).run(
-            evento.id,
-            evento.event || "DESCONHECIDO",
-            new Date().toISOString()
-        );
-
-    } catch (erro) {
-
-        if (
-            String(erro.message)
-                .includes("UNIQUE constraint failed")
-        ) {
-            console.log(
-                "Evento Asaas já registrado; verificando processamento:",
-                evento.id
-            );
-        } else {
-            console.error(
-                "Erro ao registrar evento Asaas:",
-                erro
-            );
-
-            return res
-                .status(500)
-                .json({ erro: "Erro interno" });
-        }
-    }
     console.log(
         "Webhook Asaas recebido:",
         evento.event,
-        evento.payment?.id || ""
+        paymentId || ""
     );
 
-   if (evento.event === "PAYMENT_RECEIVED") {
-
-    const paymentId =
-        evento.payment?.id;
-
-    console.log(
-        "Pagamento recebido:",
-        paymentId
-    );
-
-    if (!paymentId) {
-
-        console.log(
-            "Webhook sem payment.id."
-        );
-
-    } else {
-
-        const reservaTemporaria =
-    await db.prepare(`
-        SELECT *
-        FROM reservas_temporarias
-        WHERE asaas_payment_id = ?
-
-        LIMIT 1
-    `).get(
-        paymentId
-
-    );
-
-        if (!reservaTemporaria) {
+    try {
+        // Registrar o evento. Eventos repetidos continuam sendo
+        // verificados para permitir recuperar um processamento anterior.
+        try {
+            await db.prepare(`
+                INSERT INTO asaas_eventos (
+                    asaas_event_id,
+                    evento,
+                    recebido_em
+                )
+                VALUES (?, ?, ?)
+            `).run(
+                evento.id,
+                evento.event,
+                new Date().toISOString()
+            );
+        } catch (erroRegistro) {
+            if (
+                !String(erroRegistro.message).includes("UNIQUE constraint failed")
+            ) {
+                throw erroRegistro;
+            }
 
             console.log(
-                "Nenhuma reserva temporÃ¡ria encontrada para o pagamento:",
+                "Evento repetido; verificando processamento:",
+                evento.id
+            );
+        }
+
+        // Outros eventos são recebidos, mas não confirmam reservas.
+        if (evento.event !== "PAYMENT_RECEIVED") {
+            return res.json({ recebido: true });
+        }
+
+        if (!paymentId) {
+            console.error("PAYMENT_RECEIVED sem identificador de pagamento.");
+            return res.status(500).json({
+                erro: "Pagamento sem identificador"
+            });
+        }
+
+        // Se esse pagamento já confirmou uma reserva, não criar outra.
+        const reservaPorPagamento = await db.prepare(`
+            SELECT *
+            FROM reservas
+            WHERE asaas_payment_id = ?
+            LIMIT 1
+        `).get(paymentId);
+
+        if (reservaPorPagamento) {
+            console.log(
+                "Pagamento já associado a uma reserva:",
                 paymentId
             );
 
-        } else {
+            await db.prepare(`
+                DELETE FROM reservas_temporarias
+                WHERE asaas_payment_id = ?
+            `).run(paymentId);
 
-            const reservaExistente =
-                await db.prepare(`
-                    SELECT *
-                    FROM reservas
-                    WHERE data = ?
-                    AND horario = ?
-                    LIMIT 1
-                `).get(
-                    reservaTemporaria.data,
-                    reservaTemporaria.horario
-                );
-
-            if (reservaExistente) {
-
-                console.log(
-                    "HorÃ¡rio jÃ¡ possui uma reserva confirmada:",
-                    reservaTemporaria.data,
-                    reservaTemporaria.horario
-                );
-
-            } else {
-
-                await db.prepare(`
-                    INSERT INTO reservas (
-                        data,
-                        horario,
-                        nome,
-                        cpf,
-                        whatsapp,
-                        escalda_pes,
-                        total,
-                        reserva,
-                        restante,
-                        status,
-                        criado_em,
-                        asaas_payment_id
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `).run(
-                    reservaTemporaria.data,
-                    reservaTemporaria.horario,
-                    reservaTemporaria.nome,
-                    reservaTemporaria.cpf,
-                    reservaTemporaria.whatsapp,
-                    reservaTemporaria.escalda_pes,
-                    reservaTemporaria.total,
-                    50,
-                    reservaTemporaria.total - 50,
-                    "confirmada",
-                    new Date().toISOString(),
-                    paymentId
-                );
-
-                await db.prepare(`
-                    DELETE FROM reservas_temporarias
-                    WHERE id = ?
-                `).run(
-                    reservaTemporaria.id
-                );
-
-                console.log(
-                    "RESERVA CONFIRMADA COM SUCESSO:",
-                    reservaTemporaria.data,
-                    reservaTemporaria.horario
-                );
-            }
+            return res.json({
+                recebido: true,
+                reservaJaConfirmada: true
+            });
         }
-    }
-}
 
-    return res.json({
-        recebido: true
-    });
+        // Localizar a reserva temporária correspondente ao pagamento.
+        const reservaTemporaria = await db.prepare(`
+            SELECT *
+            FROM reservas_temporarias
+            WHERE asaas_payment_id = ?
+            LIMIT 1
+        `).get(paymentId);
+
+        if (!reservaTemporaria) {
+            console.error(
+                "Pagamento recebido sem reserva temporária correspondente:",
+                paymentId
+            );
+
+            // Não confirmar sucesso: permitir nova tentativa do webhook.
+            return res.status(500).json({
+                erro: "Reserva temporária não encontrada"
+            });
+        }
+
+        // Impedir que dois pagamentos ocupem o mesmo horário.
+        const reservaExistente = await db.prepare(`
+            SELECT *
+            FROM reservas
+            WHERE data = ?
+              AND horario = ?
+            LIMIT 1
+        `).get(
+            reservaTemporaria.data,
+            reservaTemporaria.horario
+        );
+
+        if (reservaExistente) {
+            console.error(
+                "ATENÇÃO: horário já ocupado; verificar pagamento manualmente.",
+                reservaTemporaria.data,
+                reservaTemporaria.horario,
+                paymentId
+            );
+
+            return res.status(500).json({
+                erro: "Horário ocupado; necessário verificar o pagamento"
+            });
+        }
+
+        // Criar a reserva confirmada.
+        await db.prepare(`
+            INSERT INTO reservas (
+                data,
+                horario,
+                nome,
+                cpf,
+                whatsapp,
+                escalda_pes,
+                total,
+                reserva,
+                restante,
+                status,
+                criado_em,
+                asaas_payment_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            reservaTemporaria.data,
+            reservaTemporaria.horario,
+            reservaTemporaria.nome,
+            reservaTemporaria.cpf,
+            reservaTemporaria.whatsapp,
+            reservaTemporaria.escalda_pes,
+            reservaTemporaria.total,
+            50,
+            reservaTemporaria.total - 50,
+            "confirmada",
+            new Date().toISOString(),
+            paymentId
+        );
+
+        await db.prepare(`
+            DELETE FROM reservas_temporarias
+            WHERE id = ?
+        `).run(reservaTemporaria.id);
+
+        console.log(
+            "RESERVA CONFIRMADA:",
+            reservaTemporaria.data,
+            reservaTemporaria.horario,
+            paymentId
+        );
+
+        return res.json({ recebido: true });
+
+    } catch (erro) {
+        console.error("Erro ao processar webhook Asaas:", erro);
+
+        // Resposta de erro para permitir nova tentativa do provedor.
+        return res.status(500).json({
+            erro: "Falha ao processar confirmação de pagamento"
+        });
+    }
 });
 
 /*
