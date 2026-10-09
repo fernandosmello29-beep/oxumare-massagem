@@ -941,7 +941,6 @@ app.post("/api/webhook/asaas", async (req, res) => {
             new Date().toISOString()
         );
 
- ```javascript
     } catch (erro) {
 
         if (
