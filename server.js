@@ -941,33 +941,28 @@ app.post("/api/webhook/asaas", async (req, res) => {
             new Date().toISOString()
         );
 
+ ```javascript
     } catch (erro) {
 
         if (
             String(erro.message)
-            .includes("UNIQUE constraint failed")
+                .includes("UNIQUE constraint failed")
         ) {
             console.log(
-                "Evento Asaas jÃ¡ processado:",
+                "Evento Asaas já registrado; verificando processamento:",
                 evento.id
             );
+        } else {
+            console.error(
+                "Erro ao registrar evento Asaas:",
+                erro
+            );
 
-            return res.json({
-                recebido: true,
-                duplicado: true
-            });
+            return res
+                .status(500)
+                .json({ erro: "Erro interno" });
         }
-
-        console.error(
-            "Erro ao registrar evento Asaas:",
-            erro
-        );
-
-        return res
-            .status(500)
-            .json({ erro: "Erro interno" });
     }
-
     console.log(
         "Webhook Asaas recebido:",
         evento.event,
