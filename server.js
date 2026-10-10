@@ -805,7 +805,7 @@ app.get("/api/reservas", adminAutenticado, async (req, res) => {
  * no painel administrativo.
  */
 
-app.get("/api/reservas-temporarias", async (req, res) => {
+app.get("/api/reservas-temporarias", adminAutenticado, async (req, res) => {
 
     await limparReservasTemporarias();
 
